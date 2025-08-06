@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SearchConfig {
+  id              String   @id @default(cuid())
+  keyword         String
+  location        String
+  experienceLevel String
+  remote          String
+  jobType         String
+  easyApply       Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("search_configs")
+}
+
+model Job {
+  id              String    @id @default(cuid())
+  title           String
+  company         String
+  location        String?
+  description     String?
+  url             String    @unique
+  score           Float?
+  coverLetter     String?
+  salary          String?
+  experienceLevel String?
+  remote          String?
+  jobType         String?
+  easyApply       Boolean   @default(false)
+  postedDate      String?
+  appliedDate     DateTime?
+  status          String    @default("new")
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("jobs")
+}
