@@ -29,18 +29,30 @@ export async function POST(request: NextRequest) {
 
     for (const jobData of jobsData) {
       const {
-        Title: title,
-        Company: company,
-        Location: location,
-        link, // n8n sends 'link' instead of 'url'
-        description
+        Title,
+        Company,
+        Location,
+        link,
+        title,
+        company,
+        location,
+        applyLink,
+        description,
+        score,
+        coverLetter
       } = jobData
 
-      // Validate required fields from n8n
-      if (!title || !company || !link) {
+      // Support both n8n field naming conventions
+      const jobTitle = Title || title
+      const jobCompany = Company || company
+      const jobLocation = Location || location
+      const jobUrl = link || applyLink
+
+      // Validate required fields
+      if (!jobTitle || !jobCompany || !jobUrl) {
         results.skippedJobs.push({ 
-          url: link || 'unknown', 
-          reason: 'Missing required fields: Title, Company, link' 
+          url: jobUrl || 'unknown', 
+          reason: 'Missing required fields: title, company, and applyLink/link' 
         })
         results.skipped++
         continue
@@ -49,24 +61,24 @@ export async function POST(request: NextRequest) {
       try {
         // Check if job already exists by URL to prevent duplicates
         const existingJob = await prisma.job.findUnique({
-          where: { url: link }
+          where: { url: jobUrl }
         })
 
         if (existingJob) {
-          results.skippedJobs.push({ url: link, reason: 'Job already exists' })
+          results.skippedJobs.push({ url: jobUrl, reason: 'Job already exists' })
           results.skipped++
           continue
         }
 
         const job = await prisma.job.create({
           data: {
-            title,
-            company,
-            location: location || null,
+            title: jobTitle,
+            company: jobCompany,
+            location: jobLocation || null,
             description: description || null,
-            url: link,
-            // score: score ? parseFloat(score.toString()) : null,
-            // coverLetter: coverLetter || null,
+            url: jobUrl,
+            score: score ? parseFloat(score.toString()) : null,
+            coverLetter: coverLetter || null,
             easyApply: false, // Default value
             status: 'new' // Default status
           }
@@ -77,7 +89,7 @@ export async function POST(request: NextRequest) {
       } catch (error) {
         console.error('Error creating job:', error)
         results.skippedJobs.push({ 
-          url: link, 
+          url: jobUrl, 
           reason: 'Database error: ' + (error instanceof Error ? error.message : 'Unknown error')
         })
         results.skipped++
