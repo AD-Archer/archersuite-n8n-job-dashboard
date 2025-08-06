@@ -20,7 +20,7 @@ export default function LoginForm() {
       if (!success) {
         setError('Invalid email or password')
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred during login')
     } finally {
       setLoading(false)

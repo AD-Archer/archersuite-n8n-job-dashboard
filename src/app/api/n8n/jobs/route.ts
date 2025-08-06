@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { Job } from '@prisma/client'
 
 interface N8nJobResult {
   created: number
   skipped: number
-  createdJobs: any[]
+  createdJobs: Job[]
   skippedJobs: Array<{
     url: string
     reason: string
@@ -32,9 +33,7 @@ export async function POST(request: NextRequest) {
         Company: company,
         Location: location,
         link, // n8n sends 'link' instead of 'url'
-        score,
-        description,
-        'Cover Letter': coverLetter
+        description
       } = jobData
 
       // Validate required fields from n8n

@@ -36,7 +36,7 @@ export default function JobBoard() {
       const response = await fetch('/api/health')
       const data = await response.json()
       setHealthStatus(data)
-    } catch (error) {
+    } catch {
       setHealthStatus({
         status: 'unhealthy',
         database: 'disconnected',

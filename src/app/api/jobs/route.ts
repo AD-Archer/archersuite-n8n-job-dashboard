@@ -57,8 +57,8 @@ export async function POST(request: NextRequest) {
         location,
         description,
         url, // or 'link' from n8n
-        score,
-        coverLetter,
+        // score,
+        // coverLetter,
         // Application fields that might be passed
         salary,
         experienceLevel,
