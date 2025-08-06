@@ -167,12 +167,12 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
               <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900">Create Search Configuration</h2>
+          <h2 className="text-2xl font-bold text-black-900">Create Search Configuration</h2>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="keyword" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="keyword" className="block text-sm font-medium text-black-800 mb-2">
               Keywords
             </label>
             <input
@@ -187,7 +187,7 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
           </div>
 
           <div>
-            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="location" className="block text-sm font-medium text-black-800 mb-2">
               Location
             </label>
             <input
@@ -202,7 +202,7 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-black-800 mb-3">
               Experience Level
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -214,14 +214,14 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
                     onChange={() => handleCheckboxChange(level, 'experienceLevel')}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <span className="ml-3 text-sm text-gray-700">{level}</span>
+                  <span className="ml-3 text-sm text-black-800">{level}</span>
                 </label>
               ))}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-black-800 mb-3">
               Work Type
             </label>
             <div className="grid grid-cols-3 gap-3">
@@ -233,14 +233,14 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
                     onChange={() => handleCheckboxChange(option, 'remote')}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <span className="ml-3 text-sm text-gray-700">{option}</span>
+                  <span className="ml-3 text-sm text-black-800">{option}</span>
                 </label>
               ))}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-black-800 mb-3">
               Job Type
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -252,7 +252,7 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
                     onChange={() => handleCheckboxChange(type, 'jobType')}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <span className="ml-3 text-sm text-gray-700">{type}</span>
+                  <span className="ml-3 text-sm text-black-800">{type}</span>
                 </label>
               ))}
             </div>
@@ -266,7 +266,7 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
                 onChange={(e) => setFormData(prev => ({ ...prev, easyApply: e.target.checked }))}
                 className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
-              <span className="ml-3 text-sm font-medium text-gray-700">Easy Apply Only</span>
+              <span className="ml-3 text-sm font-medium text-black-800">Easy Apply Only</span>
             </label>
           </div>
 
@@ -290,14 +290,14 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
 
         {generatedUrl && (
           <div className="mt-6 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200">
-            <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
+            <h3 className="text-sm font-medium text-black-800 mb-3 flex items-center">
               <svg className="w-4 h-4 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd" />
               </svg>
               Generated LinkedIn URL:
             </h3>
             <div className="bg-white p-3 rounded-lg border border-gray-200">
-              <code className="text-xs break-all text-gray-700">{generatedUrl}</code>
+              <code className="text-xs break-all text-black-800">{generatedUrl}</code>
             </div>
             <button
               onClick={() => {
@@ -323,7 +323,7 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
               <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold text-black-900">
             Existing Configurations ({searchConfigs.length})
           </h2>
         </div>
@@ -333,33 +333,33 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
             <div key={config.id} className="bg-white/40 backdrop-blur-sm border border-white/30 rounded-xl p-6 hover:bg-white/60 transition-all duration-200">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                 <div className="flex items-center space-x-2">
-                  <span className="font-medium text-gray-700">🔍 Keywords:</span>
-                  <span className="text-gray-600">{config.keyword}</span>
+                  <span className="font-medium text-black-800">🔍 Keywords:</span>
+                  <span className="text-black-800">{config.keyword}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="font-medium text-gray-700">📍 Location:</span>
-                  <span className="text-gray-600">{config.location}</span>
+                  <span className="font-medium text-black-800">📍 Location:</span>
+                  <span className="text-black-800">{config.location}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="font-medium text-gray-700">🎯 Experience:</span>
-                  <span className="text-gray-600">{config.experienceLevel}</span>
+                  <span className="font-medium text-black-800">🎯 Experience:</span>
+                  <span className="text-black-800">{config.experienceLevel}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="font-medium text-gray-700">🏠 Work Type:</span>
-                  <span className="text-gray-600">{config.remote}</span>
+                  <span className="font-medium text-black-800">🏠 Work Type:</span>
+                  <span className="text-black-800">{config.remote}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="font-medium text-gray-700">💼 Job Type:</span>
-                  <span className="text-gray-600">{config.jobType}</span>
+                  <span className="font-medium text-black-800">💼 Job Type:</span>
+                  <span className="text-black-800">{config.jobType}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="font-medium text-gray-700">⚡ Easy Apply:</span>
-                  <span className={`px-2 py-1 rounded-full text-xs ${config.easyApply ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                  <span className="font-medium text-black-800">⚡ Easy Apply:</span>
+                  <span className={`px-2 py-1 rounded-full text-xs ${config.easyApply ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-black-700'}`}>
                     {config.easyApply ? 'Yes' : 'No'}
                   </span>
                 </div>
               </div>
-              <div className="mt-3 text-xs text-gray-500 flex items-center">
+              <div className="mt-3 text-xs text-black-700 flex items-center">
                 <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                 </svg>
@@ -369,8 +369,8 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
           ))}
           
           {searchConfigs.length === 0 && (
-            <div className="text-center text-gray-500 py-12">
-              <svg className="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="text-center text-black-700 py-12">
+              <svg className="w-16 h-16 mx-auto text-black-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
               <p className="text-lg font-medium">No search configurations found</p>

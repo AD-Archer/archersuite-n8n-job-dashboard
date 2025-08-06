@@ -18,7 +18,7 @@ export default function Home() {
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
             Job Search Dashboard
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-800">
             Manage your job search configurations and view results from your n8n automation
           </p>
         </div>

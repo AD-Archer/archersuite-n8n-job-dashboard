@@ -30,7 +30,7 @@ export default function JobsList({ jobs, loading, onRefresh }: JobsListProps) {
       case 'rejected':
         return 'bg-red-100 text-red-800 border-red-200'
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200'
+        return 'bg-gray-100 text-black-800 border-gray-200'
     }
   }
 
@@ -48,7 +48,7 @@ export default function JobsList({ jobs, loading, onRefresh }: JobsListProps) {
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 shadow-lg p-12">
         <div className="flex flex-col items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-4"></div>
-          <p className="text-gray-600">Loading jobs...</p>
+          <p className="text-black-800">Loading jobs...</p>
         </div>
       </div>
     )
@@ -65,7 +65,7 @@ export default function JobsList({ jobs, loading, onRefresh }: JobsListProps) {
                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-black-900">
               Job Results ({filteredJobs.length})
             </h2>
           </div>
@@ -107,12 +107,12 @@ export default function JobsList({ jobs, loading, onRefresh }: JobsListProps) {
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                    <h3 className="text-lg font-semibold text-black-900 group-hover:text-blue-600 transition-colors">
                       {job.title}
                     </h3>
-                    <p className="text-gray-600 mt-1 font-medium">{job.company}</p>
+                    <p className="text-black-800 mt-1 font-medium">{job.company}</p>
                     {job.location && (
-                      <p className="text-sm text-gray-500 mt-1 flex items-center">
+                      <p className="text-sm text-black-700 mt-1 flex items-center">
                         <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                         </svg>
@@ -154,14 +154,14 @@ export default function JobsList({ jobs, loading, onRefresh }: JobsListProps) {
                       {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
                     </span>
                     {job.postedDate && (
-                      <span className="text-xs text-gray-500 flex items-center">
+                      <span className="text-xs text-black-700 flex items-center">
                         <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                         </svg>
                         Posted: {job.postedDate}
                       </span>
                     )}
-                    <span className="text-xs text-gray-400 flex items-center">
+                    <span className="text-xs text-black-700 flex items-center">
                       <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
                         </svg>
@@ -174,11 +174,11 @@ export default function JobsList({ jobs, loading, onRefresh }: JobsListProps) {
           </div>
         ) : (
           <div className="px-8 py-16 text-center">
-            <svg className="w-24 h-24 mx-auto text-gray-300 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-24 h-24 mx-auto text-black-300 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2V6" />
             </svg>
-            <p className="text-xl font-semibold text-gray-500 mb-2">No jobs found</p>
-            <p className="text-gray-400">
+            <p className="text-xl font-semibold text-black-700 mb-2">No jobs found</p>
+            <p className="text-black-600">
               Jobs will appear here when your n8n automation adds them to the database
             </p>
           </div>
@@ -192,12 +192,12 @@ export default function JobsList({ jobs, loading, onRefresh }: JobsListProps) {
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 px-8 py-6 border-b border-white/20">
               <div className="flex justify-between items-start">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">{selectedJob.title}</h2>
-                  <p className="text-gray-600 text-lg">{selectedJob.company}</p>
+                  <h2 className="text-2xl font-bold text-black-900">{selectedJob.title}</h2>
+                  <p className="text-black-800 text-lg">{selectedJob.company}</p>
                 </div>
                 <button
                   onClick={() => setSelectedJob(null)}
-                  className="text-gray-400 hover:text-gray-600 p-2 hover:bg-white/50 rounded-full transition-colors"
+                  className="text-black-400 hover:text-black-600 p-2 hover:bg-white/50 rounded-full transition-colors"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -209,21 +209,21 @@ export default function JobsList({ jobs, loading, onRefresh }: JobsListProps) {
             <div className="px-8 py-6 space-y-6">
               {selectedJob.location && (
                 <div className="flex items-center space-x-2">
-                  <svg className="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 text-black-600" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                   </svg>
-                  <span className="font-medium text-gray-700">Location:</span>
-                  <span className="text-gray-600">{selectedJob.location}</span>
+                  <span className="font-medium text-black-800">Location:</span>
+                  <span className="text-black-800">{selectedJob.location}</span>
                 </div>
               )}
               
               {selectedJob.salary && (
                 <div className="flex items-center space-x-2">
-                  <svg className="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 text-black-600" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" />
                   </svg>
-                  <span className="font-medium text-gray-700">Salary:</span>
+                  <span className="font-medium text-black-800">Salary:</span>
                   <span className="text-green-600 font-medium">{selectedJob.salary}</span>
                 </div>
               )}
@@ -251,8 +251,8 @@ export default function JobsList({ jobs, loading, onRefresh }: JobsListProps) {
 
               {selectedJob.description && (
                 <div>
-                  <span className="font-medium text-gray-700 block mb-3">Description:</span>
-                  <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 text-gray-600 text-sm whitespace-pre-wrap max-h-40 overflow-y-auto">
+                  <span className="font-medium text-black-800 block mb-3">Description:</span>
+                  <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 text-black-800 text-sm whitespace-pre-wrap max-h-40 overflow-y-auto">
                     {selectedJob.description}
                   </div>
                 </div>
@@ -260,25 +260,25 @@ export default function JobsList({ jobs, loading, onRefresh }: JobsListProps) {
 
               {selectedJob.score && (
                 <div className="flex items-center space-x-2">
-                  <svg className="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 text-black-600" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
                   </svg>
-                  <span className="font-medium text-gray-700">Score:</span>
-                  <span className="text-gray-600">{selectedJob.score}</span>
+                  <span className="font-medium text-black-800">Score:</span>
+                  <span className="text-black-800">{selectedJob.score}</span>
                 </div>
               )}
 
               {selectedJob.coverLetter && (
                 <div>
-                  <span className="font-medium text-gray-700 block mb-3">Cover Letter:</span>
-                  <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 text-gray-600 text-sm whitespace-pre-wrap max-h-40 overflow-y-auto">
+                  <span className="font-medium text-black-800 block mb-3">Cover Letter:</span>
+                  <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 text-black-800 text-sm whitespace-pre-wrap max-h-40 overflow-y-auto">
                     {selectedJob.coverLetter}
                   </div>
                 </div>
               )}
 
               <div className="flex items-center space-x-3">
-                <span className="font-medium text-gray-700">Status:</span>
+                <span className="font-medium text-black-800">Status:</span>
                 <select
                   value={selectedJob.status}
                   onChange={(e) => updateJobStatus(selectedJob.id, e.target.value)}
@@ -306,7 +306,7 @@ export default function JobsList({ jobs, loading, onRefresh }: JobsListProps) {
                 </a>
                 <button
                   onClick={() => setSelectedJob(null)}
-                  className="flex-1 bg-gray-200 text-gray-700 py-3 px-6 rounded-xl hover:bg-gray-300 transition-colors font-medium"
+                  className="flex-1 bg-gray-200 text-black-700 py-3 px-6 rounded-xl hover:bg-gray-300 transition-colors font-medium"
                 >
                   Close
                 </button>
