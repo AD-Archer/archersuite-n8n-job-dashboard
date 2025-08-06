@@ -1,28 +1,14 @@
-# Copilot Instructions
+This project is set up for continuous deployment using GitHub Actions and PM2. On every push to the `main` branch, the following steps are executed:
 
-<!-- Use this file to provide workspace-specific custom instructions to Copilot. For more details, visit https://code.visualstudio.com/docs/copilot/copilot-customization#_use-a-githubcopilotinstructionsmd-file -->
+1.  **Checkout Code:** The latest code is checked out from the `main` branch.
+2.  **Set up Node.js:** A Node.js environment (version 20) is set up.
+3.  **Install Dependencies:** All project dependencies are installed using `npm install`.
+4.  **Build:** The project is built using `npm run build`. A dummy `DATABASE_URL` is provided to pass the build step.
+5.  **Deploy with PM2:** The changes are deployed to the server using an SSH action. The script pulls the latest code, installs dependencies, builds the project, and restarts all PM2 processes.
 
-## Project Overview
-This is a Next.js TypeScript application for managing job search configurations and storing job results from LinkedIn searches via n8n automation.
+To make this work, you need to add the following secrets to your GitHub repository:
 
-## Tech Stack
-- **Frontend**: Next.js 15 with TypeScript and Tailwind CSS
-- **Backend**: Next.js API Routes
-- **Database**: PostgreSQL with Prisma ORM
-- **Styling**: Tailwind CSS
-
-## Key Features
-- Search configuration management (keywords, location, experience level, etc.)
-- Job data storage with duplicate prevention
-- RESTful API endpoints for CRUD operations
-- LinkedIn job search URL generation logic
-- Modern UI with Tailwind CSS
-
-## Development Guidelines
-- Use TypeScript for type safety
-- Implement proper error handling and validation
-- Follow Next.js App Router conventions
-- Use Prisma for database operations with proper relation handling
-- Ensure database operations prevent duplicates
-- Use environment variables for configuration
-- Follow Tailwind CSS utility-first approach
+*   `SSH_HOST`
+*   `SSH_USERNAME`
+*   `SSH_KEY`
+*   `SSH_PORT`
