@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { Job, SearchConfig } from '@/types'
 import JobsList from './JobsList'
 import SearchConfigForm from './SearchConfigForm'
@@ -23,6 +24,7 @@ export default function JobBoard() {
     database: 'checking...' 
   })
   const { data: session } = useSession();
+  const router = useRouter();
 
   // Check database health on component mount
 
@@ -83,6 +85,12 @@ export default function JobBoard() {
             <div className="flex items-center flex-wrap gap-2">
               <div className="flex items-center space-x-4">
                 <span className="text-gray-700 font-medium">{session?.user?.name || session?.user?.email}</span>
+                <button 
+                  onClick={() => router.push('/settings')} 
+                  className="text-gray-600 hover:text-gray-800 hover:underline"
+                >
+                  Settings
+                </button>
                 <button onClick={() => signOut()} className="text-blue-600 hover:underline">Logout</button>
               </div>
               <div className={`w-3 h-3 rounded-full ml-2 ${
@@ -112,16 +120,28 @@ export default function JobBoard() {
               <p className="text-xs text-red-600 mt-1 bg-red-50 px-2 py-1 rounded-md">{healthStatus.error}</p>
             )}
           </div>
-          {/* Logout Button - Mobile Optimized */}
-          <button
-            onClick={() => signOut()}
-            className="w-full sm:w-auto px-4 py-2.5 sm:py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 flex items-center justify-center space-x-2 font-medium shadow-lg hover:shadow-xl"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            <span>Logout</span>
-          </button>
+          {/* Action Buttons - Mobile Optimized */}
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => router.push('/settings')}
+              className="w-full sm:w-auto px-4 py-2.5 sm:py-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl hover:from-gray-600 hover:to-gray-700 transition-all duration-200 flex items-center justify-center space-x-2 font-medium shadow-lg hover:shadow-xl"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span>Settings</span>
+            </button>
+            <button
+              onClick={() => signOut()}
+              className="w-full sm:w-auto px-4 py-2.5 sm:py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 flex items-center justify-center space-x-2 font-medium shadow-lg hover:shadow-xl"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
       </div>
 
