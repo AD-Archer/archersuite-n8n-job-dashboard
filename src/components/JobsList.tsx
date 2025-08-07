@@ -12,8 +12,47 @@ interface JobsListProps {
 
 export default function JobsList({ jobs, loading, onRefresh }: JobsListProps) {
   const [statusFilter, setStatusFilter] = useState<string>('all')
-  // Filter out archived jobs
-  const filteredJobs = jobs.filter((job: Job) => (job.status !== 'archived') && (statusFilter === 'all' || job.status === statusFilter));
+  const [scoreFilter, setScoreFilter] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState<string>('')
+  const [showArchived, setShowArchived] = useState<boolean>(false)
+  
+  // Filter jobs based on all criteria
+  const filteredJobs = jobs.filter((job: Job) => {
+    // Archived filter
+    const archivedMatch = showArchived ? true : job.status !== 'archived'
+    
+    // Status filter
+    const statusMatch = statusFilter === 'all' || job.status === statusFilter
+    
+    // Score filter
+    const scoreMatch = scoreFilter === 'all' || (
+      scoreFilter === 'high' && job.score && job.score >= 80
+    ) || (
+      scoreFilter === 'medium' && job.score && job.score >= 60 && job.score < 80
+    ) || (
+      scoreFilter === 'low' && job.score && job.score < 60
+    ) || (
+      scoreFilter === 'no-score' && !job.score
+    )
+    
+    // Search filter (title, company, description)
+    const searchMatch = searchQuery === '' || (
+      job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (job.description && job.description.toLowerCase().includes(searchQuery.toLowerCase()))
+    )
+    
+    return archivedMatch && statusMatch && scoreMatch && searchMatch
+  });
+
+  const clearFilters = () => {
+    setStatusFilter('all')
+    setScoreFilter('all')
+    setSearchQuery('')
+    setShowArchived(false)
+  }
+
+  const hasActiveFilters = statusFilter !== 'all' || scoreFilter !== 'all' || searchQuery !== '' || showArchived;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -27,6 +66,8 @@ export default function JobsList({ jobs, loading, onRefresh }: JobsListProps) {
         return 'bg-green-100 text-green-800 border-green-200'
       case 'rejected':
         return 'bg-red-100 text-red-800 border-red-200'
+      case 'archived':
+        return 'bg-gray-100 text-gray-800 border-gray-200'
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200'
     }
@@ -58,32 +99,87 @@ export default function JobsList({ jobs, loading, onRefresh }: JobsListProps) {
               <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
                 Job Results
               </h2>
-              <p className="text-xs sm:text-sm text-gray-600">{filteredJobs.length} jobs found</p>
+              <p className="text-xs sm:text-sm text-gray-600">
+                {filteredJobs.length} of {jobs.length} jobs 
+                {searchQuery && ` matching "${searchQuery}"`}
+                {showArchived && ' (including archived)'}
+              </p>
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 sm:px-4 py-2 bg-white/50 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-            >
-              <option value="all">All Status</option>
-              <option value="new">New</option>
-              <option value="applied">Applied</option>
-              <option value="interview">Interview</option>
-              <option value="offer">Offer</option>
-              <option value="rejected">Rejected</option>
-            </select>
-            <button
-              onClick={onRefresh}
-              className="px-4 sm:px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base font-medium"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              <span>Refresh</span>
-            </button>
+          <div className="flex flex-col space-y-3 w-full">
+            {/* Search and Toggle Row */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+              <div className="flex-1">
+                <input
+                  type="text"
+                  placeholder="Search jobs, companies, or descriptions..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-3 sm:px-4 py-2 bg-white/50 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                />
+              </div>
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showArchived}
+                  onChange={(e) => setShowArchived(e.target.checked)}
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-700 whitespace-nowrap">Show Archived</span>
+              </label>
+            </div>
+            
+            {/* Filters Row */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-3 sm:px-4 py-2 bg-white/50 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              >
+                <option value="all">All Status</option>
+                <option value="new">New</option>
+                <option value="applied">Applied</option>
+                <option value="interview">Interview</option>
+                <option value="offer">Offer</option>
+                <option value="rejected">Rejected</option>
+                {showArchived && <option value="archived">Archived</option>}
+              </select>
+              
+              <select
+                value={scoreFilter}
+                onChange={(e) => setScoreFilter(e.target.value)}
+                className="px-3 sm:px-4 py-2 bg-white/50 backdrop-blur-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              >
+                <option value="all">All Scores</option>
+                <option value="high">High Score (80+)</option>
+                <option value="medium">Medium Score (60-79)</option>
+                <option value="low">Low Score (&lt;60)</option>
+                <option value="no-score">No Score</option>
+              </select>
+              
+              <button
+                onClick={onRefresh}
+                className="px-4 sm:px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base font-medium whitespace-nowrap"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span>Refresh</span>
+              </button>
+              
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="px-4 sm:px-6 py-2 bg-gray-500 text-white rounded-xl hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base font-medium whitespace-nowrap"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  <span>Clear</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -96,16 +192,31 @@ export default function JobsList({ jobs, loading, onRefresh }: JobsListProps) {
               <Link
                 key={job.id}
                 href={`/jobs/${job.id}`}
-                className="block p-3 sm:p-6 hover:bg-white/60 transition-all duration-200 group animate-slide-up rounded-xl sm:rounded-2xl mb-2 sm:mb-0 shadow-sm border border-gray-100"
+                className={`block p-3 sm:p-6 hover:bg-white/60 transition-all duration-200 group animate-slide-up rounded-xl sm:rounded-2xl mb-2 sm:mb-0 shadow-sm border border-gray-100 ${
+                  job.status === 'archived' ? 'opacity-60 bg-gray-50/50' : ''
+                }`}
                 style={{animationDelay: `${index * 50}ms`}}
               >
                 <div className="flex flex-col space-y-2 sm:space-y-3">
                   {/* Main Job Info */}
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0">
                     <div className="flex-1 min-w-0 mb-1 sm:mb-0">
-                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors truncate">
-                        {job.title}
-                      </h3>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors truncate">
+                          {job.title}
+                        </h3>
+                        {job.score && (
+                          <span className={`text-xs px-2 py-1 rounded-full font-bold ${
+                            job.score >= 80 
+                              ? 'bg-green-100 text-green-800' 
+                              : job.score >= 60 
+                              ? 'bg-yellow-100 text-yellow-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {job.score}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-gray-800 font-medium text-sm sm:text-base mt-1">{job.company}</p>
                     </div>
                     <span className={`text-xs px-2 sm:px-3 py-1 sm:py-2 rounded-full border font-medium whitespace-nowrap ml-2 ${getStatusColor(job.status)}`}>
@@ -150,6 +261,14 @@ export default function JobsList({ jobs, loading, onRefresh }: JobsListProps) {
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                         Easy Apply
+                      </span>
+                    )}
+                    {job.description && (
+                      <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-lg border border-indigo-200 flex items-center">
+                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v12h8V4H6z" clipRule="evenodd" />
+                        </svg>
+                        Has Description
                       </span>
                     )}
                   </div>

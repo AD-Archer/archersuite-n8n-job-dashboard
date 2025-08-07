@@ -18,7 +18,7 @@ export default function Home() {
           <div className="mb-6 sm:mb-8 animate-slide-up">
             <div className="text-center sm:text-left">
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent mb-2 sm:mb-3">
-                Job Dashboard
+                Archer Suite Job Dashboard
               </h1>
               <p className="text-gray-600 text-sm sm:text-base max-w-2xl">
                 Manage your job search configurations and view results from your automation
