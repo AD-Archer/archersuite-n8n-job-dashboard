@@ -6,11 +6,13 @@
     "dev": "next dev",
     "build": "npx prisma generate && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
     "@prisma/client": "^6.13.0",
+    "bcryptjs": "^3.0.2",
     "next": "15.4.5",
     "next-auth": "5.0.0-beta.29",
     "prisma": "^6.13.0",

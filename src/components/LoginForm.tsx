@@ -52,17 +52,18 @@ export default function LoginForm() {
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-white/90 mb-2">
                   Email Address
+                 Email or Username
                 </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm"
-                  placeholder="Enter your email"
+                 <input
+                   id="email"
+                   name="email"
+                   type="text"
+                   autoComplete="username"
+                   required
+                   value={email}
+                   onChange={(e) => setEmail(e.target.value)}
+                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm"
+                   placeholder="Enter your email or username"
                 />
               </div>
               
@@ -107,10 +108,27 @@ export default function LoginForm() {
             {/* Demo credentials info */}
             <div className="mt-6 p-4 bg-white/5 border border-white/10 rounded-xl">
               <p className="text-xs text-white/60 text-center">
-                <strong className="text-white/80">Demo Credentials:</strong><br />
-                Email: admin@job.com<br />
+                <strong className="text-white/80">Example Credentials, note configure login inside .env:</strong><br />
+                 Username or Email: admin@job.com<br />
                 Password: admin123
               </p>
+             {/* Info about .env credentials and debug info */}
+             <div className="mt-6 p-4 bg-white/5 border border-white/10 rounded-xl">
+               <div className="mb-4 p-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 text-sm text-center">
+                 You can set login credentials in a <code>.env</code> file using <b>NEXT_PUBLIC_LOGIN_USER</b> (username or email) and <b>NEXT_PUBLIC_LOGIN_PASS</b>.<br />
+                 Default: <b>admin@job.com</b> / <b>admin123</b>
+               </div>
+               <p className="text-xs text-white/60 text-center">
+                 <strong className="text-white/80">Demo Credentials:</strong><br />
+                 Username or Email: admin@job.com<br />
+                 Password: admin123
+               </p>
+               {/* Debug: Show current env credentials */}
+               <div className="mt-3 p-2 rounded bg-yellow-50 border border-yellow-200 text-yellow-800 text-xs text-center">
+                 <b>Debug:</b> Allowed login:<br />
+                 <span data-testid="env-user">{process.env.NEXT_PUBLIC_LOGIN_USER || 'admin@job.com'}</span> / <span data-testid="env-pass">{process.env.NEXT_PUBLIC_LOGIN_PASS || 'admin123'}</span>
+               </div>
+             </div>
             </div>
           </form>
         </div>

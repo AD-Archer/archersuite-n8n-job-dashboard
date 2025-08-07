@@ -25,16 +25,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  // Read env vars at module scope so they're statically replaced at build time
+  const ENV_USER = process.env.NEXT_PUBLIC_LOGIN_USER || 'admin@job.com';
+  const ENV_PASS = process.env.NEXT_PUBLIC_LOGIN_PASS || 'admin123';
+
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Simple mock authentication - in production, you'd call your auth API
-    if (email === 'admin@job.com' && password === 'admin123') {
-      const authData = { user: { email }, timestamp: Date.now() }
-      localStorage.setItem('job-auth', JSON.stringify(authData))
-      setIsAuthenticated(true)
-      setUser({ email })
-      return true
+    if (email === ENV_USER && password === ENV_PASS) {
+      const authData = { user: { email }, timestamp: Date.now() };
+      localStorage.setItem('job-auth', JSON.stringify(authData));
+      setIsAuthenticated(true);
+      setUser({ email });
+      return true;
     }
-    return false
+    return false;
   }
 
   const logout = () => {

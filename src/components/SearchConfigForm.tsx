@@ -163,7 +163,7 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 shadow-lg p-8">
         <div className="flex items-center space-x-3 mb-6">
           <div className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-full p-2">
-            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
             </svg>
           </div>
@@ -180,7 +180,7 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
               id="keyword"
               value={formData.keyword}
               onChange={(e) => setFormData(prev => ({ ...prev, keyword: e.target.value }))}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 backdrop-blur-sm"
+              className="w-full px-4 py-3 border border-black-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 backdrop-blur-sm"
               placeholder="e.g., nodejs, python, fullstack, frontend, devops"
               required
             />
@@ -195,7 +195,7 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
               id="location"
               value={formData.location}
               onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 backdrop-blur-sm"
+              className="w-full px-4 py-3 border border-black-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 backdrop-blur-sm"
               placeholder="e.g., Philadelphia"
               required
             />
@@ -212,7 +212,7 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
                     type="checkbox"
                     checked={formData.experienceLevel.split(',').map(v => v.trim()).includes(level)}
                     onChange={() => handleCheckboxChange(level, 'experienceLevel')}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-black-300 rounded"
                   />
                   <span className="ml-3 text-sm text-black-800">{level}</span>
                 </label>
@@ -231,7 +231,7 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
                     type="checkbox"
                     checked={formData.remote.split(',').map(v => v.trim()).includes(option)}
                     onChange={() => handleCheckboxChange(option, 'remote')}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-black-300 rounded"
                   />
                   <span className="ml-3 text-sm text-black-800">{option}</span>
                 </label>
@@ -250,7 +250,7 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
                     type="checkbox"
                     checked={formData.jobType.split(',').map(v => v.trim()).includes(type)}
                     onChange={() => handleCheckboxChange(type, 'jobType')}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-black-300 rounded"
                   />
                   <span className="ml-3 text-sm text-black-800">{type}</span>
                 </label>
@@ -264,7 +264,7 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
                 type="checkbox"
                 checked={formData.easyApply}
                 onChange={(e) => setFormData(prev => ({ ...prev, easyApply: e.target.checked }))}
-                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-black-300 rounded"
               />
               <span className="ml-3 text-sm font-medium text-black-800">Easy Apply Only</span>
             </label>
@@ -274,14 +274,14 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
             <button
               type="button"
               onClick={generateUrl}
-              className="flex-1 bg-gradient-to-r from-gray-500 to-gray-600 text-white py-3 px-6 rounded-xl hover:from-gray-600 hover:to-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all duration-200 font-medium"
+              className="flex-1 bg-gradient-to-r from-black-500 to-black-600 text-black py-3 px-6 rounded-xl hover:from-black-600 hover:to-black-700 focus:outline-none focus:ring-2 focus:ring-black-500 transition-all duration-200 font-medium"
             >
               Generate LinkedIn URL
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-xl hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 transition-all duration-200 font-medium"
+              className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-black py-3 px-6 rounded-xl hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 transition-all duration-200 font-medium"
             >
               {loading ? 'Creating...' : 'Save Configuration'}
             </button>
@@ -296,7 +296,7 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
               </svg>
               Generated LinkedIn URL:
             </h3>
-            <div className="bg-white p-3 rounded-lg border border-gray-200">
+            <div className="bg-white p-3 rounded-lg border border-black-200">
               <code className="text-xs break-all text-black-800">{generatedUrl}</code>
             </div>
             <button
@@ -319,7 +319,7 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 shadow-lg p-8">
         <div className="flex items-center space-x-3 mb-6">
           <div className="bg-gradient-to-r from-green-500 to-teal-500 rounded-full p-2">
-            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 20 20">
               <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -354,7 +354,7 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="font-medium text-black-800">⚡ Easy Apply:</span>
-                  <span className={`px-2 py-1 rounded-full text-xs ${config.easyApply ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-black-700'}`}>
+                  <span className={`px-2 py-1 rounded-full text-xs ${config.easyApply ? 'bg-green-100 text-green-700' : 'bg-black-100 text-black-700'}`}>
                     {config.easyApply ? 'Yes' : 'No'}
                   </span>
                 </div>
