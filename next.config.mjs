@@ -1,6 +1,5 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   // Explicitly disable experimental features that might cause issues
   experimental: {
   },
@@ -11,7 +10,7 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_LOGIN_PASS: process.env.NEXT_PUBLIC_LOGIN_PASS,
   },
   // Add webpack configuration to avoid Turbopack issues
-  webpack: (config: any) => {
+  webpack: (config) => {
     return config;
   },
 };
