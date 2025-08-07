@@ -52,9 +52,10 @@ export default function JobBoard() {
     try {
       const response = await fetch('/api/jobs');
       const data = await response.json();
-      setJobs(data);
+      // Ensure jobs is always an array
+      setJobs(Array.isArray(data) ? data : Array.isArray(data.jobs) ? data.jobs : []);
     } catch (error) {
-      // Optionally handle error
+      setJobs([]);
     } finally {
       setLoading(false);
     }
@@ -77,11 +78,11 @@ export default function JobBoard() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
           <div className="flex-1">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Dashboard Overview</h2>
-            <p className="text-gray-600 text-sm sm:text-base mb-2 sm:mb-3">Welcome back, {session?.user?.email}</p>
+            <p className="text-gray-600 text-sm sm:text-base mb-2 sm:mb-3">Welcome back, {session?.user?.name || session?.user?.email}</p>
             {/* Database Status Indicator - Mobile Friendly */}
             <div className="flex items-center flex-wrap gap-2">
               <div className="flex items-center space-x-4">
-                <span className="text-gray-700 font-medium">{session?.user?.email}</span>
+                <span className="text-gray-700 font-medium">{session?.user?.name || session?.user?.email}</span>
                 <button onClick={() => signOut()} className="text-blue-600 hover:underline">Logout</button>
               </div>
               <div className={`w-3 h-3 rounded-full ml-2 ${

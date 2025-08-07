@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function LoginForm() {
@@ -9,6 +10,7 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const { login } = useAuth()
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -17,7 +19,9 @@ export default function LoginForm() {
 
     try {
       const success = await login(email, password)
-      if (!success) {
+      if (success) {
+        router.push('/');
+      } else {
         setError('Invalid email or password')
       }
     } catch {

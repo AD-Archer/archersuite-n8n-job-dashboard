@@ -16,9 +16,15 @@ export default NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        if (
+          !credentials ||
+          typeof credentials.email !== 'string' ||
+          typeof credentials.password !== 'string'
+        ) {
+          return null;
+        }
         const user = await prisma.user.findUnique({ where: { email: credentials.email } });
-        if (!user || !user.password) return null;
+        if (!user || typeof user.password !== 'string') return null;
         const isValid = await compare(credentials.password, user.password);
         if (!isValid) return null;
         return user;
