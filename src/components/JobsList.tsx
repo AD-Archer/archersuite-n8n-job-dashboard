@@ -4,6 +4,9 @@ import Link from 'next/link';
 import { Job } from '@/types'
 import { useState } from 'react';
 
+// Use NEXT_PUBLIC_N8N_SEARCH_HOOK for client-side env var
+const N8N_SEARCH_HOOK = process.env.NEXT_PUBLIC_N8N_SEARCH_HOOK;
+
 interface JobsListProps {
   jobs: Job[]
   loading: boolean
@@ -15,6 +18,32 @@ export default function JobsList({ jobs, loading, onRefresh }: JobsListProps) {
   const [scoreFilter, setScoreFilter] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [showArchived, setShowArchived] = useState<boolean>(false)
+
+  // Start Search button state
+  const [searching, setSearching] = useState(false);
+  const [searchMsg, setSearchMsg] = useState<string | null>(null);
+
+  const handleStartSearch = async () => {
+    if (!N8N_SEARCH_HOOK) {
+      setSearchMsg('Search hook URL not set.');
+      return;
+    }
+    setSearching(true);
+    setSearchMsg(null);
+    try {
+      const res = await fetch(N8N_SEARCH_HOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trigger: 'start' })
+      });
+      if (!res.ok) throw new Error('Failed to start search');
+      setSearchMsg('Search started!');
+    } catch (e: any) {
+      setSearchMsg(e.message || 'Failed to start search');
+    } finally {
+      setSearching(false);
+    }
+  };
   
   // Filter jobs based on all criteria
   const filteredJobs = jobs.filter((job: Job) => {
@@ -167,6 +196,19 @@ export default function JobsList({ jobs, loading, onRefresh }: JobsListProps) {
                 </svg>
                 <span>Refresh</span>
               </button>
+
+              {/* Start Search Button */}
+              <button
+                type="button"
+                onClick={handleStartSearch}
+                disabled={searching}
+                className={`px-4 sm:px-6 py-2 bg-blue-700 text-white rounded-xl hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-700 transition-all duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base font-medium whitespace-nowrap ${searching ? 'opacity-60 cursor-not-allowed' : ''}`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                <span>{searching ? 'Starting...' : 'Start Search'}</span>
+              </button>
               
               {hasActiveFilters && (
                 <button
@@ -179,6 +221,10 @@ export default function JobsList({ jobs, loading, onRefresh }: JobsListProps) {
                   <span>Clear</span>
                 </button>
               )}
+            {/* Search feedback message */}
+            {searchMsg && (
+              <span className={`text-xs ml-2 ${searchMsg.includes('started') ? 'text-green-600' : 'text-red-600'}`}>{searchMsg}</span>
+            )}
             </div>
           </div>
         </div>
