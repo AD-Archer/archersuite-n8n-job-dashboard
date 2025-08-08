@@ -78,7 +78,22 @@ The AI Assistant tab lets you:
 - Improve resume bullets with metrics and impact
 - Draft tailored cover letters
 
-Backend: `POST /api/ai` uses OpenAI Chat Completions. Provide `OPENAI_API_KEY` in environment.
+Backend: `POST /api/ai` supports multiple providers. Select provider in the UI.
+
+Supported providers and env vars:
+
+- OpenAI
+  - OPENAI_API_KEY
+  - OPENAI_MODEL (optional, default: gpt-4o-mini)
+- OpenRouter
+  - OPENROUTER_API_KEY
+  - OPENROUTER_MODEL (optional, default: openrouter/auto)
+- Gemini
+  - GEMINI_API_KEY
+  - GEMINI_MODEL (optional, default: gemini-1.5-flash)
+- Ollama (local)
+  - OLLAMA_BASE_URL (optional, default: http://127.0.0.1:11434)
+  - OLLAMA_MODEL (optional, default: llama3.1)
 
 ## API Endpoints
 

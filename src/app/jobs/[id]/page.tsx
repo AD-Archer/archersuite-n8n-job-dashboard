@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
-import JobDetailClient from '@/components/JobDetailClient';
+import JobDetailClient from '@/app/jobs/[id]/components/JobDetailClient';
 import ArchiveJobButton from '@/components/ArchiveJobButton';
 
 // Fetch job data directly from the database

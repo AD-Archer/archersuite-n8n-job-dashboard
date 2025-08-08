@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type Task = "qa" | "resume" | "coverLetter";
 
@@ -8,8 +8,11 @@ type Length = "short" | "long";
 
 type Tone = "professional" | "enthusiastic" | "concise" | "friendly";
 
+type Provider = "openai" | "gemini" | "openrouter" | "ollama";
+
 export default function AiAssistant() {
   const [task, setTask] = useState<Task>("qa");
+  const [provider, setProvider] = useState<Provider>("openai");
   const [question, setQuestion] = useState("Why do you want this job?");
   const [jobTitle, setJobTitle] = useState("");
   const [company, setCompany] = useState("");
@@ -21,6 +24,18 @@ export default function AiAssistant() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [output, setOutput] = useState("");
+
+  // Prefill from URL query params
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const jt = params.get('jobTitle');
+    const co = params.get('company');
+    const jd = params.get('jobDescription');
+    if (jt) setJobTitle(jt);
+    if (co) setCompany(co);
+    if (jd) setJobDescription(jd);
+  }, []);
 
   const canSubmit = (() => {
     if (task === "qa") return !!question.trim();
@@ -40,6 +55,7 @@ export default function AiAssistant() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          provider,
           task,
           inputs: {
             question,
@@ -82,7 +98,7 @@ export default function AiAssistant() {
       }`;
     return (
       <div className="flex bg-gray-100/60 backdrop-blur-sm p-1 rounded-2xl border border-blue-400/20 shadow mb-4">
-        <button className={tabClass(task === "qa")} onClick={() => setTask("qa")}>Q&A</button>
+        <button className={tabClass(task === "qa")} onClick={() => setTask("qa")}>Q&amp;A</button>
         <button className={tabClass(task === "resume")} onClick={() => setTask("resume")}>Resume</button>
         <button className={tabClass(task === "coverLetter")} onClick={() => setTask("coverLetter")}>Cover Letter</button>
       </div>
@@ -91,7 +107,16 @@ export default function AiAssistant() {
 
   function Controls() {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+        <div className="flex items-center gap-2">
+          <label className="text-sm text-gray-600 w-20">Provider</label>
+          <select className="w-full border rounded-lg px-3 py-2 bg-white" value={provider} onChange={(e) => setProvider(e.target.value as Provider)}>
+            <option value="openai">OpenAI</option>
+            <option value="gemini">Gemini</option>
+            <option value="openrouter">OpenRouter</option>
+            <option value="ollama">Ollama</option>
+          </select>
+        </div>
         <div className="flex items-center gap-2">
           <label className="text-sm text-gray-600 w-20">Tone</label>
           <select className="w-full border rounded-lg px-3 py-2 bg-white" value={tone} onChange={(e) => setTone(e.target.value as Tone)}>
@@ -125,7 +150,7 @@ export default function AiAssistant() {
             <input className="w-full border rounded-lg px-3 py-2 bg-white" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} placeholder="e.g., Senior Frontend Engineer" />
           </div>
           <div>
-            <label className="block text-sm text-gray-600 mb-1">Job Question (for Q&A)</label>
+            <label className="block text-sm text-gray-600 mb-1">Job Question (for Q&amp;A)</label>
             <input className="w-full border rounded-lg px-3 py-2 bg-white" value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Why do you want this job?" />
           </div>
         </div>

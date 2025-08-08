@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Job } from '@/types'
+import Link from 'next/link'
 
 interface JobDetailClientProps {
   job: Job
@@ -89,7 +90,18 @@ export default function JobDetailClient({ job: initialJob }: JobDetailClientProp
               </p>
             )}
           </div>
-          <div className="ml-4">
+          <div className="ml-4 flex flex-col items-end gap-2">
+            {/* Send to AI Assistant Button */}
+            <Link
+              href={`/?tab=ai&jobTitle=${encodeURIComponent(job.title || '')}&company=${encodeURIComponent(job.company || '')}&jobDescription=${encodeURIComponent(job.description || '')}`}
+              className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium shadow hover:from-blue-700 hover:to-purple-700 transition-colors text-sm mb-2"
+              prefetch={false}
+            >
+              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Send to AI Assistant
+            </Link>
             {isEditing ? (
               <select
                 value={job.status}

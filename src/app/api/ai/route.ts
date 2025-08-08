@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Use edge runtime for lower latency
-export const runtime = 'edge';
-
-// We support OpenAI-compatible providers via fetch to avoid bundling large SDKs
-const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
+// Use node runtime (Ollama/local calls won't work reliably on edge)
+export const runtime = 'nodejs';
 
 function buildPrompt(body: any) {
   const { task, inputs } = body as {
+    provider?: 'openai' | 'gemini' | 'openrouter' | 'ollama'
     task: 'qa' | 'resume' | 'coverLetter';
     inputs: {
       question?: string;
@@ -21,7 +19,7 @@ function buildPrompt(body: any) {
     };
   };
 
-  const base = `You are an expert career coach and recruiter. Use the provided info to produce high-quality, original, non-plagiarized content. Keep it ${inputs.length === 'short' ? 'concise (3-6 sentences or 2-4 bullets)':'comprehensive (6-12 sentences or 5-8 bullets)'} with a ${inputs.tone || 'professional'} tone. Avoid making up facts; use only the info given. If something is missing, state reasonable assumptions briefly.`;
+  const base = `You are an expert career coach and recruiter. Use the provided info to produce high-quality, original, non-plagiarized content. Keep it ${inputs.length === 'short' ? 'concise (3-6 sentences or 2-4 bullets)' : 'comprehensive (6-12 sentences or 5-8 bullets)'} with a ${inputs.tone || 'professional'} tone. Avoid making up facts; use only the info given. If something is missing, state reasonable assumptions briefly.`;
 
   const context = [
     inputs.jobTitle ? `Job Title: ${inputs.jobTitle}` : '',
@@ -41,45 +39,117 @@ function buildPrompt(body: any) {
   return `${base}\n\nTask: Draft a tailored cover letter body (no header/signature). Focus on fit, achievements, and motivation.\n\nContext:\n${context}`;
 }
 
+async function callOpenAI(prompt: string) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) throw new Error('Missing OPENAI_API_KEY');
+  const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+  const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'system', content: 'You are a helpful, expert career coach.' },
+        { role: 'user', content: prompt },
+      ],
+      temperature: 0.7,
+    }),
+  });
+  if (!resp.ok) throw new Error(`OpenAI error: ${await resp.text()}`);
+  const data = await resp.json();
+  return data?.choices?.[0]?.message?.content || '';
+}
+
+async function callOpenRouter(prompt: string) {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) throw new Error('Missing OPENROUTER_API_KEY');
+  const model = process.env.OPENROUTER_MODEL || 'openrouter/auto';
+  const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'system', content: 'You are a helpful, expert career coach.' },
+        { role: 'user', content: prompt },
+      ],
+      temperature: 0.7,
+    }),
+  });
+  if (!resp.ok) throw new Error(`OpenRouter error: ${await resp.text()}`);
+  const data = await resp.json();
+  return data?.choices?.[0]?.message?.content || '';
+}
+
+async function callGemini(prompt: string) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error('Missing GEMINI_API_KEY');
+  const model = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${apiKey}`;
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [
+        {
+          role: 'user',
+          parts: [{ text: prompt }],
+        },
+      ],
+      generationConfig: { temperature: 0.7 },
+    }),
+  });
+  if (!resp.ok) throw new Error(`Gemini error: ${await resp.text()}`);
+  const data = await resp.json();
+  const parts = data?.candidates?.[0]?.content?.parts || [];
+  const text = parts.map((p: any) => p.text).filter(Boolean).join('\n');
+  return text || '';
+}
+
+async function callOllama(prompt: string) {
+  const base = process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434';
+  const model = process.env.OLLAMA_MODEL || 'llama3.1';
+  const resp = await fetch(`${base.replace(/\/$/, '')}/api/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'system', content: 'You are a helpful, expert career coach.' },
+        { role: 'user', content: prompt },
+      ],
+      stream: false,
+      options: { temperature: 0.7 },
+    }),
+  });
+  if (!resp.ok) throw new Error(`Ollama error: ${await resp.text()}`);
+  const data = await resp.json();
+  return data?.message?.content || '';
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: 'Missing OPENAI_API_KEY' }, { status: 500 });
-    }
+    const provider = (body?.provider || 'openai') as 'openai' | 'gemini' | 'openrouter' | 'ollama';
 
     const prompt = buildPrompt(body);
 
-    const response = await fetch(OPENAI_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: 'You are a helpful, expert career coach.' },
-          { role: 'user', content: prompt },
-        ],
-        temperature: 0.7,
-      }),
-    });
-
-    if (!response.ok) {
-      const err = await response.text();
-      console.error('OpenAI error:', err);
-      return NextResponse.json({ error: 'AI request failed' }, { status: 502 });
-    }
-
-    const data = await response.json();
-    const output = data?.choices?.[0]?.message?.content || '';
+    let output = '';
+    if (provider === 'openai') output = await callOpenAI(prompt);
+    else if (provider === 'gemini') output = await callGemini(prompt);
+    else if (provider === 'openrouter') output = await callOpenRouter(prompt);
+    else if (provider === 'ollama') output = await callOllama(prompt);
+    else throw new Error('Unsupported provider');
 
     return NextResponse.json({ output });
   } catch (e: any) {
     console.error('AI route error', e);
-    return NextResponse.json({ error: 'Unexpected server error' }, { status: 500 });
+    return NextResponse.json({ error: e?.message || 'Unexpected server error' }, { status: 500 });
   }
 }

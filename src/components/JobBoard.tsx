@@ -19,7 +19,14 @@ export default function JobBoard() {
   const [jobs, setJobs] = useState<Job[]>([])
   const [searchConfigs, setSearchConfigs] = useState<SearchConfig[]>([])
   const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'jobs' | 'config' | 'ai'>('jobs')
+  const [activeTab, setActiveTab] = useState<'jobs' | 'config' | 'ai'>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab');
+      if (tab === 'ai' || tab === 'config' || tab === 'jobs') return tab;
+    }
+    return 'jobs';
+  });
   const [healthStatus, setHealthStatus] = useState<HealthStatus>({ 
     status: 'checking', 
     database: 'checking...' 
@@ -71,6 +78,27 @@ export default function JobBoard() {
       setSearchConfigs(data);
     } catch (error) {
       // Optionally handle error
+    }
+  }
+
+  // Sync tab with URL on mount and when URL changes
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab === 'ai' || tab === 'config' || tab === 'jobs') {
+      setActiveTab(tab);
+    }
+  }, []);
+
+  // When tab changes, update the URL (shallow push)
+  function handleTabChange(tab: 'jobs' | 'config' | 'ai') {
+    setActiveTab(tab);
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      params.set('tab', tab);
+      const url = window.location.pathname + '?' + params.toString();
+      window.history.replaceState(null, '', url);
     }
   }
 
@@ -206,7 +234,7 @@ export default function JobBoard() {
       {/* Navigation Tabs - Mobile Optimized */}
       <div className="flex bg-white/60 backdrop-blur-sm p-1 rounded-2xl sm:rounded-3xl border border-white/20 shadow-lg overflow-hidden">
         <button
-          onClick={() => setActiveTab('jobs')}
+          onClick={() => handleTabChange('jobs')}
           className={`flex-1 px-4 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-sm sm:text-base font-medium transition-all duration-200 ${
             activeTab === 'jobs'
               ? 'bg-white text-gray-900 shadow-lg scale-105'
@@ -223,7 +251,7 @@ export default function JobBoard() {
           </div>
         </button>
         <button
-          onClick={() => setActiveTab('config')}
+          onClick={() => handleTabChange('config')}
           className={`flex-1 px-4 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-sm sm:text-base font-medium transition-all duration-200 ${
             activeTab === 'config'
               ? 'bg-white text-gray-900 shadow-lg scale-105'
@@ -239,7 +267,7 @@ export default function JobBoard() {
           </div>
         </button>
         <button
-          onClick={() => setActiveTab('ai')}
+          onClick={() => handleTabChange('ai')}
           className={`flex-1 px-4 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-sm sm:text-base font-medium transition-all duration-200 ${
             activeTab === 'ai'
               ? 'bg-white text-gray-900 shadow-lg scale-105'

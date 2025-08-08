@@ -7,3 +7,5 @@ Write unit tests for your code to ensure that it behaves as expected.
 Ensure all code is useable on all devices, mobile and desktop, and that it is responsive.
 Use comments judiciously to explain complex logic or important decisions in the code. However, avoid redundant comments that simply restate what the code is doing.
 Keep security in mind. Avoid hardcoding sensitive information, validate user inputs, and follow best practices
+
+Ensure that style is readable on all devices, contrast well, and there are no light colors on light backgrounds or dark colors on dark backgrounds.
