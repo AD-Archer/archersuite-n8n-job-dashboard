@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { generateLinkedInSearchUrl } from '@/lib/linkedin-url'
+import { generateLinkedInSearchUrl, generateLinkedInVariants } from '@/lib/linkedin-url'
+import { generateIndeedUrl, generateGlassdoorUrl, generateMonsterUrl, generateZipRecruiterUrl } from '@/lib/other-job-urls'
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,27 +11,68 @@ export async function POST(request: NextRequest) {
       experienceLevel,
       remote,
       jobType,
-      easyApply
+      easyApply,
+      distance,
+      sortBy,
+      datePosted,
+      postedWithinDays,
+      industry,
+      industryIds,
+      geoId,
+      fPP,
+      includeOthers,
+      locationMode, // 'text' | 'geo' | 'both'
+      returnVariants, // boolean
     } = body
 
-    // Validate required fields
-    if (!keyword || !location || !experienceLevel || !remote || !jobType) {
+    // Validate minimal fields (keyword or location should exist)
+    if (!keyword && !location) {
       return NextResponse.json(
-        { error: 'Missing required fields: keyword, location, experienceLevel, remote, jobType' },
+        { error: 'Provide at least keyword or location' },
         { status: 400 }
       )
     }
 
-    const url = generateLinkedInSearchUrl({
+    const params = {
       keyword,
       location,
       experienceLevel,
       remote,
       jobType,
-      easyApply: easyApply || false
-    })
+      easyApply: !!easyApply,
+      distance: typeof distance === 'number' ? distance : undefined,
+      sortBy,
+      datePosted,
+      postedWithinDays: typeof postedWithinDays === 'number' ? postedWithinDays : undefined,
+      industry,
+      industryIds,
+      geoId,
+      fPP,
+      locationMode,
+    } as const
 
-    return NextResponse.json({ url })
+    const variants = generateLinkedInVariants(params)
+
+    if (!includeOthers && !returnVariants) {
+      return NextResponse.json({ url: variants.url })
+    }
+
+    const generic = { keyword, location, distance, jobType, experienceLevel, remote }
+
+    return NextResponse.json({
+      url: variants.url,
+      ...(returnVariants ? { variants } : {}),
+      ...(includeOthers
+        ? {
+            others: {
+              indeed: generateIndeedUrl(generic),
+              glassdoor: generateGlassdoorUrl(generic),
+              monster: generateMonsterUrl(generic),
+              ziprecruiter: generateZipRecruiterUrl(generic),
+            },
+          }
+        : {}),
+    })
   } catch (error) {
     console.error('Error generating LinkedIn URL:', error)
     return NextResponse.json(

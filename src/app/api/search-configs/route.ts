@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { generateLinkedInSearchUrl } from '@/lib/linkedin-url'
 
 export async function GET() {
   try {
@@ -8,7 +9,13 @@ export async function GET() {
       orderBy: { createdAt: 'desc' }
     })
 
-    return NextResponse.json(searchConfigs)
+    // Attach LinkedIn URL to each config
+    const configsWithUrl = searchConfigs.map(config => ({
+      ...config,
+      linkedinUrl: generateLinkedInSearchUrl(config)
+    }))
+
+    return NextResponse.json(configsWithUrl)
   } catch (error) {
     console.error('Error fetching search configs:', error)
     return NextResponse.json(

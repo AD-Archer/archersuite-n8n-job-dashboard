@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { SearchConfig } from '@/types'
 
 interface SearchConfigFormProps {
@@ -15,14 +15,43 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
     experienceLevel: '',
     remote: '',
     jobType: '',
-    easyApply: false
+    easyApply: false,
+    distance: 25,
+    sortBy: 'R' as 'R' | 'DD',
+    datePosted: 'any' as 'any' | 'past24h' | 'past3days' | 'pastWeek' | 'pastMonth',
+    postedWithinDays: undefined as number | undefined,
+    locationMode: 'both' as 'text' | 'geo' | 'both',
+    returnVariants: true,
+    includeOthers: false,
   })
   const [loading, setLoading] = useState(false)
   const [generatedUrl, setGeneratedUrl] = useState('')
+  const [variants, setVariants] = useState<{ selected: 'text'|'geo'; text: string; geo: string } | null>(null)
+  const [otherUrls, setOtherUrls] = useState<{ indeed?: string; glassdoor?: string; monster?: string; ziprecruiter?: string } | null>(null)
+  const [exampleUrls, setExampleUrls] = useState<Record<string, string>>({})
 
   const experienceLevels = ['Internship', 'Entry level', 'Associate', 'Mid-Senior level', 'Director', 'Executive']
   const remoteOptions = ['On-Site', 'Remote', 'Hybrid']
   const jobTypes = ['Full-time', 'Part-time', 'Contract', 'Temporary', 'Other', 'Internship']
+
+  useEffect(() => {
+    async function fetchExamples() {
+      const results: Record<string, string> = {}
+      await Promise.all(searchConfigs.map(async (config) => {
+        try {
+          const res = await fetch('/api/generate-linkedin-url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...config, returnVariants: false, includeOthers: false })
+          })
+          const data = await res.json()
+          if (data.url) results[config.id] = data.url
+        } catch {}
+      }))
+      setExampleUrls(results)
+    }
+    if (searchConfigs.length > 0) fetchExamples()
+  }, [searchConfigs])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,9 +60,7 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
     try {
       const response = await fetch('/api/search-configs', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       })
 
@@ -44,9 +71,18 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
           experienceLevel: '',
           remote: '',
           jobType: '',
-          easyApply: false
+          easyApply: false,
+          distance: 25,
+          sortBy: 'R',
+          datePosted: 'any',
+          postedWithinDays: undefined,
+          locationMode: 'both',
+          returnVariants: true,
+          includeOthers: false,
         })
         setGeneratedUrl('')
+        setVariants(null)
+        setOtherUrls(null)
         onConfigCreated()
         alert('Search configuration created successfully!')
       } else {
@@ -62,99 +98,41 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
   }
 
   const generateUrl = async () => {
-    // Generate LinkedIn URL using the same logic as your n8n code
-    let url = "https://www.linkedin.com/jobs/search/?f_TPR=r86400"
-
-    const { keyword, location, experienceLevel, remote, jobType, easyApply } = formData
-
-    if (keyword && keyword.trim() !== "") {
-      url += `&keywords=${encodeURIComponent(keyword)}`
+    try {
+      const response = await fetch('/api/generate-linkedin-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Failed to generate URL')
+      setGeneratedUrl(data.url)
+      setVariants(data.variants || null)
+      setOtherUrls(data.others || null)
+    } catch (e: any) {
+      alert(e.message)
     }
-
-    if (location && location.trim() !== "") {
-      url += `&location=${encodeURIComponent(location)}`
-    }
-
-    if (experienceLevel && experienceLevel.trim() !== "") {
-      const transformedExperiences = experienceLevel
-        .split(",")
-        .map((exp) => {
-          switch (exp.trim()) {
-            case "Internship": return "1"
-            case "Entry level": return "2"
-            case "Associate": return "3"
-            case "Mid-Senior level": return "4"
-            case "Director": return "5"
-            case "Executive": return "6"
-            default: return ""
-          }
-        })
-        .filter(Boolean)
-      
-      if (transformedExperiences.length > 0) {
-        url += `&f_E=${transformedExperiences.join(",")}`
-      }
-    }
-
-    if (remote && remote.trim() !== "") {
-      const transformedRemote = remote
-        .split(",")
-        .map((e) => {
-          switch (e.trim()) {
-            case "Remote": return "2"
-            case "Hybrid": return "3"
-            case "On-Site": return "1"
-            default: return ""
-          }
-        })
-        .filter(Boolean)
-      
-      if (transformedRemote.length > 0) {
-        url += `&f_WT=${transformedRemote.join(",")}`
-      }
-    }
-
-    if (jobType && jobType.trim() !== "") {
-      const transformedJobType = jobType
-        .split(",")
-        .map((type) => {
-          const trimmed = type.trim()
-          switch (trimmed) {
-            case "Full-time": return "F"
-            case "Part-time": return "P"
-            case "Contract": return "C"
-            case "Temporary": return "T"
-            case "Other": return "O"
-            case "Internship": return "I"
-            default: return trimmed.charAt(0).toUpperCase()
-          }
-        })
-        .filter(Boolean)
-      
-      if (transformedJobType.length > 0) {
-        url += `&f_JT=${transformedJobType.join(",")}`
-      }
-    }
-
-    if (easyApply) {
-      url += "&f_EA=true"
-    }
-
-    setGeneratedUrl(url)
   }
 
   const handleCheckboxChange = (value: string, field: 'experienceLevel' | 'remote' | 'jobType') => {
     const currentValues = formData[field].split(',').map((v: string) => v.trim()).filter(Boolean)
     const isSelected = currentValues.includes(value)
-    
-    const newValues = isSelected
-      ? currentValues.filter((v: string) => v !== value)
-      : [...currentValues, value]
-    
-    setFormData(prev => ({
-      ...prev,
-      [field]: newValues.join(', ')
-    }))
+    const newValues = isSelected ? currentValues.filter((v) => v !== value) : [...currentValues, value]
+    setFormData(prev => ({ ...prev, [field]: newValues.join(', ') }))
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete this search config?')) return
+    try {
+      const res = await fetch(`/api/search-configs/${id}`, { method: 'DELETE' })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Delete failed')
+      }
+      onConfigCreated()
+    } catch (e: any) {
+      alert(e.message)
+    }
   }
 
   return (
@@ -270,19 +248,73 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
             </label>
           </div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-black-800 mb-2">Distance (miles)</label>
+              <input type="number" min={0} value={formData.distance}
+                onChange={(e) => setFormData(prev => ({ ...prev, distance: Number(e.target.value) }))}
+                className="w-full px-4 py-3 border border-black-200 rounded-xl bg-white/50" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-black-800 mb-2">Sort By</label>
+              <select value={formData.sortBy} onChange={(e) => setFormData(prev => ({ ...prev, sortBy: e.target.value as 'R'|'DD' }))}
+                className="w-full px-4 py-3 border border-black-200 rounded-xl bg-white/50">
+                <option value="R">Most Relevant</option>
+                <option value="DD">Most Recent</option>
+              </select>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-black-800 mb-2">Date Posted</label>
+              <select value={formData.datePosted} onChange={(e) => setFormData(prev => ({ ...prev, datePosted: e.target.value as any }))}
+                className="w-full px-4 py-3 border border-black-200 rounded-xl bg-white/50">
+                <option value="any">Any time</option>
+                <option value="past24h">Past 24 hours</option>
+                <option value="past3days">Past 3 days</option>
+                <option value="pastWeek">Past week</option>
+                <option value="pastMonth">Past month</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-black-800 mb-2">Or within days</label>
+              <input type="number" min={0} placeholder="e.g. 7" value={formData.postedWithinDays ?? ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, postedWithinDays: e.target.value ? Number(e.target.value) : undefined }))}
+                className="w-full px-4 py-3 border border-black-200 rounded-xl bg-white/50" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-black-800 mb-2">Location Mode</label>
+              <select value={formData.locationMode} onChange={(e) => setFormData(prev => ({ ...prev, locationMode: e.target.value as any }))}
+                className="w-full px-4 py-3 border border-black-200 rounded-xl bg-white/50">
+                <option value="both">Auto (best)</option>
+                <option value="geo">GeoId (exact)</option>
+                <option value="text">Text (city/state)</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <label className="flex items-center">
+              <input type="checkbox" checked={formData.returnVariants}
+                onChange={(e) => setFormData(prev => ({ ...prev, returnVariants: e.target.checked }))}
+                className="h-4 w-4 mr-2" />
+              <span className="text-sm">Return LinkedIn URL variants</span>
+            </label>
+            <label className="flex items-center">
+              <input type="checkbox" checked={formData.includeOthers}
+                onChange={(e) => setFormData(prev => ({ ...prev, includeOthers: e.target.checked }))}
+                className="h-4 w-4 mr-2" />
+              <span className="text-sm">Include Indeed/Glassdoor/Monster/ZipRecruiter</span>
+            </label>
+          </div>
+
           <div className="flex space-x-4">
-            <button
-              type="button"
-              onClick={generateUrl}
-              className="flex-1 bg-gradient-to-r from-black-500 to-black-600 text-black py-3 px-6 rounded-xl hover:from-black-600 hover:to-black-700 focus:outline-none focus:ring-2 focus:ring-black-500 transition-all duration-200 font-medium"
-            >
+            <button type="button" onClick={generateUrl}
+              className="flex-1 bg-gradient-to-r from-black-500 to-black-600 text-black py-3 px-6 rounded-xl hover:from-black-600 hover:to-black-700">
               Generate LinkedIn URL
             </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-black py-3 px-6 rounded-xl hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 transition-all duration-200 font-medium"
-            >
+            <button type="submit" disabled={loading}
+              className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-black py-3 px-6 rounded-xl hover:from-blue-600 hover:to-purple-700 disabled:opacity-50">
               {loading ? 'Creating...' : 'Save Configuration'}
             </button>
           </div>
@@ -290,27 +322,27 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
 
         {generatedUrl && (
           <div className="mt-6 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200">
-            <h3 className="text-sm font-medium text-black-800 mb-3 flex items-center">
-              <svg className="w-4 h-4 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd" />
-              </svg>
-              Generated LinkedIn URL:
-            </h3>
+            <h3 className="text-sm font-medium text-black-800 mb-3">Generated LinkedIn URL:</h3>
             <div className="bg-white p-3 rounded-lg border border-black-200">
               <code className="text-xs break-all text-black-800">{generatedUrl}</code>
             </div>
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(generatedUrl)
-                alert('URL copied to clipboard!')
-              }}
-              className="mt-3 text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center"
-            >
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
-              Copy to clipboard
-            </button>
+            {variants && (
+              <div className="mt-3 text-xs text-black-800">
+                <div>Selected: <span className="font-semibold">{variants.selected}</span></div>
+                <div className="mt-1">Text URL: <a className="text-blue-600 hover:underline" href={variants.text} target="_blank">Open</a></div>
+                <div>Geo URL: <a className="text-blue-600 hover:underline" href={variants.geo} target="_blank">Open</a></div>
+              </div>
+            )}
+            {otherUrls && (
+              <div className="mt-3 text-xs text-black-800 space-y-1">
+                {otherUrls.indeed && <div>Indeed: <a className="text-blue-600 hover:underline" href={otherUrls.indeed} target="_blank">Open</a></div>}
+                {otherUrls.glassdoor && <div>Glassdoor: <a className="text-blue-600 hover:underline" href={otherUrls.glassdoor} target="_blank">Open</a></div>}
+                {otherUrls.monster && <div>Monster: <a className="text-blue-600 hover:underline" href={otherUrls.monster} target="_blank">Open</a></div>}
+                {otherUrls.ziprecruiter && <div>ZipRecruiter: <a className="text-blue-600 hover:underline" href={otherUrls.ziprecruiter} target="_blank">Open</a></div>}
+              </div>
+            )}
+            <button onClick={() => { navigator.clipboard.writeText(generatedUrl); alert('URL copied to clipboard!') }}
+              className="mt-3 text-sm text-blue-600 hover:text-blue-800 font-medium">Copy to clipboard</button>
           </div>
         )}
       </div>
@@ -364,6 +396,16 @@ export default function SearchConfigForm({ searchConfigs, onConfigCreated }: Sea
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                 </svg>
                 Created: {new Date(config.createdAt).toLocaleDateString()}
+              </div>
+              {exampleUrls[config.id] && (
+                <div className="mt-2 text-xs text-black-700">
+                  <span className="font-medium">Example LinkedIn URL: </span>
+                  <a href={exampleUrls[config.id]} target="_blank" className="text-blue-600 hover:underline break-all">{exampleUrls[config.id]}</a>
+                </div>
+              )}
+              <div className="mt-4 flex justify-end">
+                <button onClick={() => handleDelete(config.id)}
+                  className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">Delete</button>
               </div>
             </div>
           ))}
