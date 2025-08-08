@@ -3,6 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 // Use node runtime (Ollama/local calls won't work reliably on edge)
 export const runtime = 'nodejs';
 
+// Add a shared ChatMessage type for chat support
+type ChatMessage = { role: 'system' | 'user' | 'assistant'; content: string };
+
 function buildPrompt(body: any) {
   const { task, inputs } = body as {
     provider?: 'openai' | 'gemini' | 'openrouter' | 'ollama'
@@ -63,6 +66,24 @@ async function callOpenAI(prompt: string) {
   return data?.choices?.[0]?.message?.content || '';
 }
 
+// New: OpenAI chat with messages
+async function callOpenAIChat(messages: ChatMessage[]) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) throw new Error('Missing OPENAI_API_KEY');
+  const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+  const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({ model, messages, temperature: 0.7 }),
+  });
+  if (!resp.ok) throw new Error(`OpenAI error: ${await resp.text()}`);
+  const data = await resp.json();
+  return data?.choices?.[0]?.message?.content || '';
+}
+
 async function callOpenRouter(prompt: string) {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) throw new Error('Missing OPENROUTER_API_KEY');
@@ -81,6 +102,24 @@ async function callOpenRouter(prompt: string) {
       ],
       temperature: 0.7,
     }),
+  });
+  if (!resp.ok) throw new Error(`OpenRouter error: ${await resp.text()}`);
+  const data = await resp.json();
+  return data?.choices?.[0]?.message?.content || '';
+}
+
+// New: OpenRouter chat with messages
+async function callOpenRouterChat(messages: ChatMessage[]) {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) throw new Error('Missing OPENROUTER_API_KEY');
+  const model = process.env.OPENROUTER_MODEL || 'openrouter/auto';
+  const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({ model, messages, temperature: 0.7 }),
   });
   if (!resp.ok) throw new Error(`OpenRouter error: ${await resp.text()}`);
   const data = await resp.json();
@@ -112,6 +151,33 @@ async function callGemini(prompt: string) {
   return text || '';
 }
 
+// New: Gemini chat with messages
+async function callGeminiChat(messages: ChatMessage[]) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error('Missing GEMINI_API_KEY');
+  const model = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${apiKey}`;
+
+  // Map OpenAI-style messages to Gemini contents. Gemini expects roles 'user' and 'model'.
+  // We'll convert 'system' to a 'user' message prefixed with 'SYSTEM: ' for guidance.
+  const contents = messages.map((m) => {
+    const role = m.role === 'assistant' ? 'model' : 'user';
+    const text = m.role === 'system' ? `SYSTEM: ${m.content}` : m.content;
+    return { role, parts: [{ text }] };
+  });
+
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ contents, generationConfig: { temperature: 0.7 } }),
+  });
+  if (!resp.ok) throw new Error(`Gemini error: ${await resp.text()}`);
+  const data = await resp.json();
+  const parts = data?.candidates?.[0]?.content?.parts || [];
+  const text = parts.map((p: any) => p.text).filter(Boolean).join('\n');
+  return text || '';
+}
+
 async function callOllama(prompt: string) {
   const base = process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434';
   const model = process.env.OLLAMA_MODEL || 'llama3.1';
@@ -133,11 +199,38 @@ async function callOllama(prompt: string) {
   return data?.message?.content || '';
 }
 
+// New: Ollama chat with messages
+async function callOllamaChat(messages: ChatMessage[]) {
+  const base = process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434';
+  const model = process.env.OLLAMA_MODEL || 'llama3.1';
+  const resp = await fetch(`${base.replace(/\/$/, '')}/api/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model, messages, stream: false, options: { temperature: 0.7 } }),
+  });
+  if (!resp.ok) throw new Error(`Ollama error: ${await resp.text()}`);
+  const data = await resp.json();
+  return data?.message?.content || '';
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const provider = (body?.provider || 'openai') as 'openai' | 'gemini' | 'openrouter' | 'ollama';
 
+    // New: if chat messages are provided, run a chat completion
+    const messages = body?.messages as ChatMessage[] | undefined;
+    if (Array.isArray(messages) && messages.length > 0) {
+      let output = '';
+      if (provider === 'openai') output = await callOpenAIChat(messages);
+      else if (provider === 'gemini') output = await callGeminiChat(messages);
+      else if (provider === 'openrouter') output = await callOpenRouterChat(messages);
+      else if (provider === 'ollama') output = await callOllamaChat(messages);
+      else throw new Error('Unsupported provider');
+      return NextResponse.json({ output });
+    }
+
+    // Fallback to legacy prompt-based flow using task + inputs
     const prompt = buildPrompt(body);
 
     let output = '';
