@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Job, SearchConfig } from '@/types'
 import JobsList from './JobsList'
 import SearchConfigForm from './SearchConfigForm'
+import AiAssistant from '@/components/AiAssistant'
 
 interface HealthStatus {
   status: 'healthy' | 'unhealthy' | 'checking'
@@ -18,7 +19,7 @@ export default function JobBoard() {
   const [jobs, setJobs] = useState<Job[]>([])
   const [searchConfigs, setSearchConfigs] = useState<SearchConfig[]>([])
   const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'jobs' | 'config'>('jobs')
+  const [activeTab, setActiveTab] = useState<'jobs' | 'config' | 'ai'>('jobs')
   const [healthStatus, setHealthStatus] = useState<HealthStatus>({ 
     status: 'checking', 
     database: 'checking...' 
@@ -237,17 +238,36 @@ export default function JobBoard() {
             <span className="sm:hidden">Config</span>
           </div>
         </button>
+        <button
+          onClick={() => setActiveTab('ai')}
+          className={`flex-1 px-4 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-sm sm:text-base font-medium transition-all duration-200 ${
+            activeTab === 'ai'
+              ? 'bg-white text-gray-900 shadow-lg scale-105'
+              : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+          }`}
+          aria-label="AI Assistant tab"
+        >
+          <div className="flex items-center justify-center space-x-1 sm:space-x-2">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2a7 7 0 00-7 7v3a5 5 0 00-2 4v1a2 2 0 002 2h4v-5H6V9a6 6 0 1112 0v5h-3v5h4a2 2 0 002-2v-1a5 5 0 00-2-4V9a7 7 0 00-7-7z" />
+            </svg>
+            <span className="hidden sm:inline">AI Assistant</span>
+            <span className="sm:hidden">AI</span>
+          </div>
+        </button>
       </div>
 
       {/* Content */}
       <div className="animate-slide-up">
         {activeTab === 'jobs' ? (
           <JobsList jobs={jobs} loading={loading} onRefresh={fetchJobs} />
-        ) : (
+        ) : activeTab === 'config' ? (
           <SearchConfigForm 
             searchConfigs={searchConfigs} 
             onConfigCreated={fetchSearchConfigs}
           />
+        ) : (
+          <AiAssistant />
         )}
       </div>
     </div>

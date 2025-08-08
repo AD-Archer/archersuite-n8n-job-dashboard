@@ -10,6 +10,7 @@ This application provides a web interface to manage job search configurations an
 
 - 🔍 **Search Configuration Management**: Create and manage multiple job search criteria
 - 📊 **Job Dashboard**: View and track all discovered jobs with scores and details
+- 🤖 **AI Assistant**: New tab to answer interview Q&A, polish resume bullets, and generate tailored cover letters
 - 🤖 **n8n Integration**: RESTful API endpoints for automated workflow integration
 - 📈 **Application Tracking**: Track job application status (new, applied, interview, offer, rejected)
 - 🎯 **AI-Powered Scoring**: Jobs are scored based on resume matching via AI analysis
@@ -48,12 +49,17 @@ cp .env.example .env.local
 DATABASE_URL="postgresql://username:password@localhost:5432/job_dashboard"
 ```
 
-5. Run database migrations:
+5. Add your OpenAI key for the AI Assistant:
+```env
+OPENAI_API_KEY="sk-..."
+```
+
+6. Run database migrations:
 ```bash
 npx prisma migrate dev
 ```
 
-6. Start the development server:
+7. Start the development server:
 ```bash
 npm run dev
 # or
@@ -63,6 +69,16 @@ pnpm dev
 Open [http://localhost:3508](http://localhost:3508) to view the application.
 
 **Note**: This application runs on port 3508 by default to avoid conflicts with other Next.js applications.
+
+## AI Assistant
+
+The AI Assistant tab lets you:
+
+- Generate interview answers (e.g., "Why do you want this job?")
+- Improve resume bullets with metrics and impact
+- Draft tailored cover letters
+
+Backend: `POST /api/ai` uses OpenAI Chat Completions. Provide `OPENAI_API_KEY` in environment.
 
 ## API Endpoints
 
@@ -82,6 +98,7 @@ The application provides several endpoints for n8n workflow integration:
 ### Utilities
 - `GET /api/health` - Health check endpoint
 - `POST /api/generate-linkedin-url` - Generate LinkedIn search URLs from criteria
+- `POST /api/ai` - AI Assistant for Q&A, resume, and cover letters
 
 ## n8n Workflow Integration
 
@@ -117,7 +134,7 @@ DATABASE_URL="postgresql://..."
 NEXTAUTH_SECRET="your-secret-key"
 NEXTAUTH_URL="http://localhost:3508"
 
-# Optional: AI Integration
+# AI Integration
 OPENAI_API_KEY="your-openai-key"
 ```
 
