@@ -34,6 +34,24 @@ export default function JobBoard() {
   const { data: session } = useSession();
   const router = useRouter();
 
+  // Add Job Modal State
+  const [showAddJob, setShowAddJob] = useState(false);
+  const [addJobLoading, setAddJobLoading] = useState(false);
+  const [addJobError, setAddJobError] = useState<string | null>(null);
+  const [addJobSuccess, setAddJobSuccess] = useState<string | null>(null);
+  const [newJob, setNewJob] = useState({
+    title: '',
+    company: '',
+    description: '',
+    location: '',
+    salary: '',
+    jobType: '',
+    remote: '',
+    easyApply: false,
+    url: '',
+    status: 'new',
+  });
+
   // Check database health on component mount
 
   useEffect(() => {
@@ -151,6 +169,15 @@ export default function JobBoard() {
           </div>
           {/* Action Buttons - Mobile Optimized */}
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => setShowAddJob(true)}
+              className="w-full sm:w-auto px-4 py-2.5 sm:py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 flex items-center justify-center space-x-2 font-medium shadow-lg hover:shadow-xl"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Add Job</span>
+            </button>
             <button
               onClick={() => router.push('/settings')}
               className="w-full sm:w-auto px-4 py-2.5 sm:py-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl hover:from-gray-600 hover:to-gray-700 transition-all duration-200 flex items-center justify-center space-x-2 font-medium shadow-lg hover:shadow-xl"
@@ -298,6 +325,85 @@ export default function JobBoard() {
           <AiAssistant />
         )}
       </div>
+
+      {/* Add Job Modal */}
+      {showAddJob && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl relative">
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-700"
+              onClick={() => setShowAddJob(false)}
+              aria-label="Close"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <h3 className="text-lg font-semibold mb-4">Add Job</h3>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setAddJobLoading(true);
+                setAddJobError(null);
+                setAddJobSuccess(null);
+                try {
+                  const res = await fetch('/api/jobs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newJob)
+                  });
+                  if (!res.ok) throw new Error('Failed to add job');
+                  setAddJobSuccess('Job added!');
+                  setNewJob({ title: '', company: '', description: '', location: '', salary: '', jobType: '', remote: '', easyApply: false, url: '', status: 'new' });
+                  fetchJobs();
+                  setTimeout(() => setShowAddJob(false), 1000);
+                } catch (e: any) {
+                  setAddJobError(e.message || 'Failed to add job');
+                } finally {
+                  setAddJobLoading(false);
+                }
+              }}
+              className="space-y-3"
+            >
+              <input className="w-full border rounded-lg px-3 py-2" placeholder="Job Title" required value={newJob.title} onChange={e => setNewJob(j => ({ ...j, title: e.target.value }))} />
+              <input className="w-full border rounded-lg px-3 py-2" placeholder="Company" required value={newJob.company} onChange={e => setNewJob(j => ({ ...j, company: e.target.value }))} />
+              <textarea className="w-full border rounded-lg px-3 py-2" placeholder="Description" value={newJob.description} onChange={e => setNewJob(j => ({ ...j, description: e.target.value }))} />
+              <input className="w-full border rounded-lg px-3 py-2" placeholder="Location" value={newJob.location} onChange={e => setNewJob(j => ({ ...j, location: e.target.value }))} />
+              <input className="w-full border rounded-lg px-3 py-2" placeholder="Salary" value={newJob.salary} onChange={e => setNewJob(j => ({ ...j, salary: e.target.value }))} />
+              <input className="w-full border rounded-lg px-3 py-2" placeholder="Job Type (e.g. Full-time)" value={newJob.jobType} onChange={e => setNewJob(j => ({ ...j, jobType: e.target.value }))} />
+              <input className="w-full border rounded-lg px-3 py-2" placeholder="Remote (yes/no)" value={newJob.remote} onChange={e => setNewJob(j => ({ ...j, remote: e.target.value }))} />
+              <input className="w-full border rounded-lg px-3 py-2" placeholder="Job Link (URL)" type="url" value={newJob.url} onChange={e => setNewJob(j => ({ ...j, url: e.target.value }))} />
+              <label className="block text-sm font-medium text-gray-700 mt-2">Status</label>
+              <select
+                className="w-full border rounded-lg px-3 py-2"
+                value={newJob.status}
+                onChange={e => setNewJob(j => ({ ...j, status: e.target.value }))}
+                required
+              >
+                <option value="new">New</option>
+                <option value="applied">Applied</option>
+                <option value="interview">Interview</option>
+                <option value="offer">Offer</option>
+                <option value="rejected">Rejected</option>
+                <option value="archived">Archived</option>
+              </select>
+              <label className="flex items-center gap-2">
+                <input type="checkbox" checked={newJob.easyApply} onChange={e => setNewJob(j => ({ ...j, easyApply: e.target.checked }))} />
+                <span>Easy Apply</span>
+              </label>
+              {addJobError && <div className="text-red-600 text-sm">{addJobError}</div>}
+              {addJobSuccess && <div className="text-green-600 text-sm">{addJobSuccess}</div>}
+              <button
+                type="submit"
+                disabled={addJobLoading}
+                className={`w-full py-2 rounded-lg text-white font-medium ${addJobLoading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
+              >
+                {addJobLoading ? 'Adding...' : 'Add Job'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
