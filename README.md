@@ -1,6 +1,7 @@
 # Job Search Dashboard
 
 A self-hostable job search dashboard designed to work with n8n workflows for automated job searching and application tracking.
+<img width="1421" height="802" alt="n8n-job-search" src="https://github.com/user-attachments/assets/f9b55fae-02e3-4378-9031-27a347a2ff86" />
 
 ## Overview
 
